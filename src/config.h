@@ -1,0 +1,21 @@
+#pragma once
+
+#define CONFIG_DATAL_PORT PORTL
+#define CONFIG_DATAL_PIN PINL
+#define CONFIG_DATAL_DDR DDRL
+
+#define CONFIG_DATAH_PORT PORTK
+#define CONFIG_DATAH_PIN PINK
+#define CONFIG_DATAH_DDR DDRK
+
+#define CONFIG_IOW 36
+#define CONFIG_IOR 35
+
+#define CONFIG_DA2 5 
+#define CONFIG_DA1 6
+#define CONFIG_DA0 7
+
+#define CONFIG_CS1 8
+#define CONFIG_CS0 9
+
+#define CONFIG_RESET 31
