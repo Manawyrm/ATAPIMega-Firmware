@@ -98,6 +98,7 @@ bool atapiplayer_update( atapiplayer_t * player )
 				return false;
 			}
 			atapiplayer_play( player );
+			atapiplayer_stop( player );
 		}
 
 #if !ATAPIPLAYER_SLIMMODE

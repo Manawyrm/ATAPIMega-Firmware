@@ -34,7 +34,7 @@
 
 #include "atapi_config.h"
 #include "ata.h"
-#include "cf.h"
+#include "config.h"
 
 #if ATAPI_USE_MALLOC == 0 && ATAPI_USE_NON_MALLOC == 0
 #error Neither ATAPI_USE_MALLOC nor ATAPI_USE_NON_MALLOC is used!

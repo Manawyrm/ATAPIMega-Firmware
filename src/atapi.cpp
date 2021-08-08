@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "display.h"
 
 bool atapi_isDataRequest( void )
 {
@@ -44,7 +45,7 @@ bool atapi_waitDataRequestTimeout( uint8_t timeout )
 			{
 				return true;
 			}
-			usleep( i * 50 );
+			delayMicroseconds( i * 50 );
 		}
 		printf( "atapi_waitDataRequestTimeout\n" );
 		return false;
@@ -190,10 +191,12 @@ bool atapi_writeCommandPacket( const uint8_t command[12], uint16_t ioLength )
 	ioLength += 12;
 	if( !ata_waitNotBusy() )
 		return false;
+
 	ata_write8( ATA_FEATURES_REG, 0 );
 	ata_write8( ATAPI_BYTECOUNTLOW_REG, ioLength );
 	ata_write8( ATAPI_BYTECOUNTHIGH_REG, ioLength>>8 );
 	ata_write8( ATA_COMMAND_REG, ATA_COMMAND_PACKET );
+
 	atapi_writePacket( command, 12 );
 	return true;
 }
@@ -538,21 +541,19 @@ bool atapi_pauseResume( bool resume )
 	return atapi_writeCommandPacket( packet, 0 );
 }
 
-
-bool atapi_testUnitReady( void )
+bool atapi_testUnitReady(void)
 {
 	uint8_t packet[12] =
-	{
-		ATAPI_COMMAND_TESTUNITREADY,
-		0,0,0,0,0,0,0,0,0,0,0	// reserved
-	};
-	if( !atapi_writeCommandPacket( packet, 0 ) )
+		{
+			ATAPI_COMMAND_TESTUNITREADY,
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // reserved
+		};
+	if (!atapi_writeCommandPacket(packet, 0))
 		return false;
 
 	ata_waitNotBusy();
-	return !ata_read8( ATA_ERROR_REG );
+	return !ata_read8(ATA_ERROR_REG);
 }
-
 
 ////////////////////////////////////////////////////////////////
 // atapi_scan_*
@@ -721,6 +722,8 @@ static bool atapi_initDevice( void )
 	printf( " * Model Nr.     \"%s\"\n", info.modelNr );
 	printf( " * Capabilities   0x%02X\n", info.capabilities );
 	printf( " * PIO Mode Nr.   0x%02X\n", info.pioModeNr );
+
+	display_log("Device info:", info.modelNr);
 	return true;
 }
 
@@ -744,10 +747,4 @@ bool atapi_init( void )
 		ata_selectDevice( 0 );
 */
 	return foundMaster;
-}
-
-bool ata_waitNotBusy( void )
-{
-	uint8_t status; 
-	ata_waitStatus( &status );
 }

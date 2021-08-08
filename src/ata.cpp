@@ -2,25 +2,64 @@
 
 #define _BV( bit ) ( 1<<(bit) ) 
 #define ATA_STATUS_BUSY			_BV(7)
+#define ATA_WAITNOTBUSY_DEFAULT_TIMEOUT 160
 
-uint8_t ata_waitStatus( uint8_t * status )
+bool ata_waitStatusTimeout(uint8_t timeout, uint8_t *status)
 {
-	*status = ata_read_register( 7 );
-	if( !( *status & ATA_STATUS_BUSY ) )
+	*status = ata_read8(7);
+	if (!(*status & ATA_STATUS_BUSY))
 	{
-		for( uint8_t i=0; i<10; i++ )
+		//printf( "Waiting for device ... " );
+		for (uint8_t i = 0; i < timeout; i++)
 		{
-			*status = ata_read_register( 7 );
-			if( !( *status & ATA_STATUS_BUSY ) )
+			*status = ata_read8(7);
+			if (!(*status & ATA_STATUS_BUSY))
 			{
+				//printf( "proceeding\n" );
 				return true;
 			}
-			delayMicroseconds( i * 1000 );
+			delay(i);
 		}
-		Serial.print( "ata_waitStatusTimeout\n" );
-		return 0;
+		//		printf_P( PSTR("timeout\n") );
+		//printf("ata_waitStatusTimeout\n");
+		return false;
 	}
-	return 1;
+	return true;
+}
+
+bool ata_waitStatus(uint8_t *status)
+{
+	return ata_waitStatusTimeout(ATA_WAITNOTBUSY_DEFAULT_TIMEOUT, status);
+}
+
+bool ata_isNotBusy(void)
+{
+	return !(ata_read8(7) & ATA_STATUS_BUSY);
+}
+
+// waits for the selected device beeing ready - aborts on timeout
+bool ata_waitNotBusyTimeout(uint8_t timeout)
+{
+	if (!ata_isNotBusy())
+	{
+		for (uint8_t i = 0; i < timeout; i++)
+		{
+			if (ata_isNotBusy())
+			{
+				return 1;
+			}
+			delay(i);
+		}
+		printf("ata_waitNotBusyTimeout\n");
+		return false;
+	}
+	return true;
+}
+
+// ata_waitNotBusyTimeout with a default value
+bool ata_waitNotBusy(void)
+{
+	return ata_waitNotBusyTimeout(ATA_WAITNOTBUSY_DEFAULT_TIMEOUT);
 }
 
 uint16_t ata_read16( uint8_t reg )
@@ -78,7 +117,7 @@ void ata_write_register(uint8_t reg, uint16_t data)
 	CONFIG_DATAL_DDR = 0x00;
 	CONFIG_DATAH_DDR = 0x00;
 
-	Serial.print("register %02x write: %04x \n"/*, reg, data*/);
+	//printf("register %02x write: %04x \n", reg, data);
 }
 
 void ata_write_register_additional(uint8_t reg, uint16_t data)
@@ -100,7 +139,7 @@ void ata_write_register_additional(uint8_t reg, uint16_t data)
 	CONFIG_DATAL_DDR = 0x00;
 	CONFIG_DATAH_DDR = 0x00;
 
-	Serial.print("register addi %02x write: %04x \n"/*, reg, data*/);
+	//printf("register addi %02x write: %04x \n", reg, data);
 }
 
 
@@ -111,8 +150,6 @@ uint16_t ata_read_register(uint8_t reg)
 	// set data lines back to input
 	CONFIG_DATAL_DDR = 0x00;
 	CONFIG_DATAH_DDR = 0x00;
-	// pull-up D7
-	//CONFIG_DATAL_PORT = 0x80;
 
 	ata_set_register(reg);
 
@@ -123,9 +160,14 @@ uint16_t ata_read_register(uint8_t reg)
 	ret |= CONFIG_DATAL_PIN;
 	ret |= CONFIG_DATAH_PIN << 8;
 
+	/*if (reg == 7)
+	{
+		printf("Status register: %04x \n", reg);
+	}*/
+
 	digitalWrite(CONFIG_IOR, 1);
 
-	//Serial.print("register %02x read: %04x \n", reg, ret);
+	//printf("register %02x read: %04x \n", reg, ret);
 	return ret;
 }
 
@@ -155,7 +197,7 @@ void ata_init()
 	// reset the drives once
 	pinMode(CONFIG_RESET, OUTPUT);
 	digitalWrite(CONFIG_RESET, 0);
-	delayMicroseconds(25);
+	delay(1000);
 	digitalWrite(CONFIG_RESET, 1);
 
 	delay(5);
