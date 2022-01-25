@@ -4,6 +4,11 @@ ATAPIMega Firmware
 [ATAPIMega](https://github.com/Manawyrm/ATAPIMega) is a hardware project which allows regular (P)ATA CD/DVD drives to be used as a standalone Audio-CD player.  
 This repository contains the (Arduino-based) firmware for the ATmega2560 microcontroller.  
 
+### Feature Wishlist
+- Show TOC info after disc insertion (total length, tracks)
+- Play hidden tracks properly (Track 0, etc.)
+- Eject/Play should close the tray if opened (this works on some drives, but not all!)
+
 ![Photo of HD44780 LCD showing track info](https://screenshot.tbspace.de/gvkdehsaoix.jpg)
 
 Project is ideally built with PlatformIO, but should work in the Arduino IDE as well.  
