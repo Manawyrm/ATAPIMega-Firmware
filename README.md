@@ -21,7 +21,5 @@ ATAPI and CD player implementation is based on [IDETrol](https://github.com/zwos
 Thanks to [@faultierkatze](https://github.com/faultierkatze) for the inspiration for this project, UI layout and general feedback!
 
 Licensed under GPLv3!  
-Copyright (c) 2021 Tobias Mädel \<t.maedel@alfeld.de\>  
+Copyright (c) 2021 Manawyrm \<maedel@alfeld.de\>  
 Copyright (c) 2011 Tobias Himmer \<provisorisch@online.de\>  
-  
-[https://tbspace.de](https://tbspace.de)
